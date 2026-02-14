@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Europe Trip 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Cinzel:wght@400;700&family=Lato:wght@300;400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css">
+
+  <style>
+    /* ====== 1. Global Styles ====== */
+    :root {
+      --bg-color: #FDFBF7;
+      --text-primary: #2C3e50;
+      --text-secondary: #7f8c8d;
+      --accent-pink: #E6B8B8;
+      --accent-green: #B8C7B8;
+      --accent-gold: #D4AF37;
+
+      /* 字體變數 */
+      --font-heading: 'Cinzel', serif;
+      --font-body: 'Lato', sans-serif;
+      --font-hand: 'Caveat', cursive;
+      --font-mono: 'Roboto Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #f0f0f0;
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; transition: opacity 0.3s; }
+    a:hover { opacity: 0.7; }
+
+    /* ====== 2. Background Animation ====== */
+    .watercolor-bg {
+      position: fixed; border-radius: 50%; filter: blur(60px); z-index: -1; opacity: 0.6;
+    }
+    .blob-1 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--accent-pink), transparent);
+      top: -100px; left: -100px; animation: float 10s infinite alternate;
+    }
+    .blob-2 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, var(--accent-green), transparent);
+      bottom: 10%; right: -50px; animation: float 8s infinite alternate-reverse;
+    }
+    @keyframes float { from { transform: translate(0, 0); } to { transform: translate(20px, 20px); } }
+
+    /* ====== 3. App Container ====== */
+    .app-screen {
+      width: 100%; max-width: 480px; min-height: 100vh; margin: 0 auto;
+      background-color: var(--bg-color); box-shadow: 0 0 50px rgba(0,0,0,0.05);
+      display: none; padding-bottom: 60px; position: relative;
+    }
+    .app-screen.active { display: block; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+
+    /* Top Left Actions */
+    .top-actions {
+      position: absolute; top: 20px; left: 20px;
+      display: flex; gap: 12px; z-index: 10;
+    }
+    .icon-btn {
+      width: 38px; height: 38px; background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(5px); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.05); color: var(--text-secondary);
+      cursor: pointer; transition: all 0.3s ease;
+    }
+    .icon-btn:hover { color: var(--text-primary); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+    /* ====== 4. Master Page ====== */
+    .master-content { padding: 50px 24px; }
+    .master-header { text-align: center; margin-bottom: 40px; padding-top: 18px; }
+    .trip-year { font-family: var(--font-body); font-size: 0.9rem; letter-spacing: 3px; color: var(--text-secondary); margin-bottom: px; }
+
+    .main-title {
+      font-family: var(--font-heading);
+      font-size: 3.2rem;
+      line-height: 1.1;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+    .sub-title {
+      font-family: var(--font-hand);
+      font-size: 1.8rem;
+      color: var(--text-secondary);
+      font-weight: 200;
+      margin-top: -5px;
+    }
+    .author {
+      margin-top: 15px;
+      text-align: center;
+      font-family: var(--font-heading); font-size: 0.6rem; font-weight: 520;
+      font-style: normal; color: var(--accent-gold); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 1.2px;
+    }
+
+    /* Map Navigation */
+    .map-overview {
+      display: flex; justify-content: space-between; align-items: center;
+      position: relative; padding: 20px 40px; margin-bottom: 40px; overflow-x: auto;
+    }
+    .map-track {
+      position: absolute; top: 40%; left: 30px; right: 30px; height: 2px;
+      border-top: 2px dashed rgba(0,0,0,0.1); z-index: 0;
+    }
+    .map-point {
+      position: relative; z-index: 1; text-align: center; display: flex;
+      flex-direction: column; align-items: center; flex-shrink: 0; width: 10px;
+    }
+    .flag-icon {
+      width: 36px; height: 36px; background: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+      margin-bottom: 5px; transition: transform 0.3s;
+    }
+    .map-point.clickable { cursor: pointer; }
+    .map-point.clickable:hover .flag-icon { transform: scale(1.2); border-color: var(--accent-pink); }
+    .map-point.clickable:hover .city-label { color: var(--accent-pink); font-weight: 700; }
+    .flag-icon.active { background: linear-gradient(135deg, #fff, #f8f0f0); border: 2px solid var(--accent-pink); }
+    .city-label { font-family: var(--font-body); font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; }
+
+    /* Timeline Divider */
+    .section-divider { text-align: center; margin-bottom: 30px; position: relative; }
+    .section-divider span {
+      background: var(--bg-color); padding: 0 15px; color: var(--text-secondary);
+      font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 2px;
+      font-size: 0.9rem; position: relative; z-index: 1; font-weight: 700;
+    }
+    .section-divider::before {
+      content: ''; position: absolute; top: 50%; left: 10%; right: 10%; height: 1px;
+      background: rgba(0,0,0,0.05); z-index: 0;
+    }
+
+    /* --- Timeline Container --- */
+    .timeline-container {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      transform: none;
+    }
+
+    .stop-node {
+      display: flex;
+      margin-bottom: 0 !important;
+      padding-bottom: 30px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      position: relative;
+    }
+    .stop-node:last-child { padding-bottom: 0; }
+
+    /* Date Column */
+    .date-col {
+      flex: 0 0 65px;
+      text-align: right; padding-right: 10px;
+      display: flex; flex-direction: column; align-items: flex-end;
+      justify-content: flex-start; padding-top: 8px;
+    }
+    .date-text { font-family: var(--font-mono); font-weight: 600; font-size: 0.8rem; color: var(--text-primary); line-height: 1.5; }
+    .date-divider { font-family: var(--font-mono); font-size: 0.8rem; color: #ccc; margin: 2px 0; margin-right: 15px; }
+
+    /* Visual Column */
+    .visual-col {
+      width: 30px; flex-shrink: 0; display: flex; flex-direction: column;
+      align-items: center; position: relative;
+    }
+    .dot {
+      width: 12px; height: 12px; background-color: #fff;
+      border: 2px solid var(--text-primary); border-radius: 50%;
+      margin-top: 8px; z-index: 2; position: relative;
+    }
+    .dot.active { background-color: var(--accent-pink); border-color: var(--accent-pink); box-shadow: 0 0 0 2.5px rgba(230, 184, 184, 0.3); }
+
+    .visual-col::before {
+      content: ''; position: absolute; top: 20px; bottom: -50px;
+      left: 50%; width: 2px; background-color: rgba(0,0,0,0.1);
+      transform: translateX(-50%); z-index: 1;
+    }
+    .line { display: none; }
+    .stop-node:last-child .visual-col::before {
+      bottom: auto; height: 60px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
+    }
+
+    /* Info Column */
+    .info-col { flex: 1; padding-left: 10px; padding-bottom: 15px; text-align: left; }
+    .stop-node .city-name {
+      font-family: var(--font-heading); font-size: 1.6rem; margin-bottom: 5px;
+      color: var(--text-primary); transition: color 0.3s; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .stop-node .city-name .fi { font-size: 1.2rem; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stop-node.clickable { cursor: pointer; }
+    .stop-node.clickable:hover .city-name { color: var(--accent-pink); }
+
+    .city-theme {
+      font-family: var(--font-heading); font-size: 0.65rem; font-weight: 400;
+      font-style: normal; color: var(--accent-gold); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .hotel-name { font-family: var(--font-body); font-size: 0.8rem; color: var(--text-secondary); font-weight: 300; }
+    .hotel-name i { color: #ccc; margin-right: 5px; font-size: 0.8em; }
+
+    /* ====== 5. Footer & Nav ====== */
+    .journal-footer {
+      text-align: center; margin-top: 50px; color: var(--text-secondary);
+      font-family: var(--font-heading); font-size: 0.75rem; letter-spacing: 2px; 
+      text-transform: uppercase; padding-top: 20px; border-bottom: 20px solid transparent; border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    .journal-footer a {
+      font-family: var(--font-mono); font-size: inherit; font-weight: 700;
+      text-transform: inherit; letter-spacing: inherit; color: var(--text-primary);
+      border-bottom: 1px solid transparent;
+    }
+    .journal-footer a:hover { color: var(--accent-pink); border-bottom-color: var(--accent-pink); }
+
+    .sticky-nav {
+      position: sticky; top: 0; z-index: 100; background: rgba(253, 251, 247, 0.95);
+      backdrop-filter: blur(5px); padding: 10px 15px; display: flex; align-items: center;
+      border-bottom: 1px solid rgba(0,0,0,0.05); height: 60px;
+    }
+    .back-btn { background: none; border: none; font-size: 1.2rem; color: var(--text-primary); cursor: pointer; margin-right: 15px; flex-shrink: 0; }
+    .nav-links { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; flex: 1; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-item {
+      font-family: var(--font-heading); font-weight: 700; font-size: 0.85rem;
+      padding: 5px 12px; border-radius: 20px; white-space: nowrap;
+      background: rgba(0,0,0,0.03); color: var(--text-primary);
+    }
+    .nav-item:hover, .nav-item:active { background-color: var(--accent-pink); color: white; }
+    .home-btn { background: none; border: none; font-size: 1.2rem; color: var(--text-primary); cursor: pointer; margin-left: 10px; flex-shrink: 0; }
+
+    /* ====== 6. Travel Journal Cards ====== */
+    .travel-journal { padding: 30px 24px; }
+    .journal-header { text-align: center; margin-bottom: 50px; }
+    .trip-date { font-family: var(--font-body); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 5px; }
+    .journal-header h1 { font-family: var(--font-heading); font-size: 3rem; line-height: 1; margin-bottom: 10px; font-weight: 700; }
+    .divider-line { width: 50px; height: 3px; background-color: var(--accent-pink); margin: 20px auto; }
+    .anchor-offset { height: 70px; margin-top: -70px; visibility: hidden; }
+
+    .day-section { margin-bottom: 60px; }
+    .day-header { display: flex; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 15px; }
+    .day-tag {
+      font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem;
+      margin-right: 20px; position: relative; z-index: 1;
+    }
+    .day-tag::before {
+      content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 50px; height: 50px; background: radial-gradient(circle, rgba(230, 184, 184, 0.6) 0%, transparent 70%);
+      z-index: -1; border-radius: 50%; filter: blur(2px);
+    }
+    .day-header h3 { font-family: var(--font-body); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-top: 4px; }
+
+    .timeline-item { display: flex; margin-bottom: 30px; }
+    .time-col {
+      width: 60px; flex-shrink: 0; text-align: right; padding-right: 15px;
+      border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column;
+    }
+    .time { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; }
+    .duration { font-family: var(--font-body); font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
+    .content-col { flex-grow: 1; padding-left: 15px; }
+
+    .card {
+      background: #fff; padding: 15px; border-radius: 2px;
+      box-shadow: 2px 4px 15px rgba(0,0,0,0.03); border-left: 4px solid var(--accent-green);
+      transition: transform 0.2s;
+    }
+    .card.highlight { border-left-color: var(--accent-pink); background-color: #fffafa; }
+    .card.gold-theme { border-left-color: var(--accent-gold); }
+    .tag {
+      display: inline-block; font-family: var(--font-body); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px;
+      background-color: var(--text-primary); color: #fff; padding: 2px 6px;
+      margin-bottom: 8px; border-radius: 2px;
+    }
+    .card.gold-theme .tag { background-color: var(--accent-gold); }
+
+    /* Card Title */
+    .card h4 { font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 5px; line-height: 1.3; font-weight: 700; }
+    .card h4 a { text-decoration: none; border-bottom: 1px solid transparent; transition: border-bottom-color 0.3s; }
+    .card h4 a:hover { border-bottom-color: var(--text-primary); }
+    .card h4 i { font-size: 0.8rem; color: #ccc; margin-left: 5px; }
+
+    .details { font-family: var(--font-body); font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 700; }
+    .notes.handwritten { font-family: var(--font-hand); color: #666; font-size: 1.2rem; line-height: 1.3; margin-top: 5px; }
+
+    /* Lists */
+    .artwork-list {
+      margin: 5px 0; padding-left: 0; list-style: none;
+      font-family: var(--font-body); font-size: 0.85rem;
+      color: var(--text-secondary); line-height: 1.6;
+    }
+    .artwork-list li { margin-bottom: 2px; }
+
+    .card.simple-list h4 { margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.03); font-size: 1.15rem; }
+    .card.simple-list ul { list-style: none; margin: 0; padding: 0; }
+    .card.simple-list li { margin-bottom: 12px; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-primary); line-height: 1.4; }
+    .card.simple-list li i { color: #ccc; margin-left: 5px; font-size: 0.8em; }
+    .card.simple-list li:last-child { margin-bottom: 0; }
+    .sub-note { display: block; font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-hand); margin-top: 2px; }
+
+    /* Transport Card Styles */
+    .transport-card { background: #fff; padding: 15px; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 20px; border-left: 4px solid var(--text-secondary); }
+    .t-header { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px; }
+    .t-type { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 1px; }
+
+    .t-route {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .t-route .origin { text-align: left; }
+    .t-route .dest { text-align: right; }
+    .t-route i { font-size: 0.9rem; color: var(--accent-pink); text-align: center; }
+
+    .t-details { font-family: var(--font-body); font-size: 0.85rem; color: var(--text-secondary); font-weight: 700; display: flex; gap: 10px; flex-wrap: wrap; }
+    .t-company { color: var(--accent-gold); font-style: italic; font-family: var(--font-heading); }
+
+    .next-stop-container {
+      margin-top: 40px; padding: 20px; background-color: #fff; border-radius: 2px;
+      text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .next-stop-container:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(0,0,0,0.08); }
+    .next-label { font-family: var(--font-body); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); margin-bottom: 5px; }
+    .next-city { font-family: var(--font-heading); font-size: 1.5rem; color: var(--text-primary); }
+    .next-city i { font-size: 1rem; margin-left: 10px; color: var(--accent-pink); transition: transform 0.3s; }
+    .next-stop-container:hover .next-city i { transform: translateX(5px); }
+
+    @media print {
+      .sticky-nav, .back-btn, .nav-links, .next-stop-container, .top-actions { display: none !important; }
+      .fa-location-arrow { display: none !important; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: #fff; }
+      .app-screen { max-width: 100%; box-shadow: none; margin: 0; padding: 0; }
+      .day-section, .card { break-inside: avoid; }
+    }
+    /* === Desktop visual centering fix for timeline (HTML only) === */
+    @media (min-width: 768px) {
+     .timeline-container {
+      position: relative;
+      left: 35px;
+     }
+     }
+
+  </style>
+</head>
+
+<body>
+  <div class="watercolor-bg blob-1"></div>
+  <div class="watercolor-bg blob-2"></div>
+
+  <!-- ===== MASTER PAGE (Timeline) ===== -->
+  <section id="master-page" class="app-screen active">
+    <div class="top-actions">
+      <button class="icon-btn" onclick="showPage('transport-page')"><i class="fa-solid fa-plane"></i></button>
+      <button class="icon-btn" onclick="showPage('photo-page')"><i class="fa-solid fa-camera"></i></button>
+    </div>
+
+    <div class="master-content">
+      <header class="master-header">
+        <p class="trip-year">2026</p>
+        <h1 class="main-title">Europe Trip</h1>
+        <p class="sub-title">Architecture & City Views</p>
+        <p class="author">Created by Chris</p>
+      </header>
+
+      <div class="map-overview">
+        <div class="map-track"></div>
+        <div class="map-point clickable" onclick="showPage('vienna-page')"><div class="flag-icon active">🇦🇹</div><span class="city-label">VIE</span></div>
+        <div class="map-point clickable" onclick="showPage('barcelona-page')"><div class="flag-icon active">🇪🇸</div><span class="city-label">BCN</span></div>
+        <div class="map-point clickable" onclick="showPage('budapest-page')"><div class="flag-icon active">🇭🇺</div><span class="city-label">BUD</span></div>
+        <div class="map-point clickable" onclick="showPage('prague-page')"><div class="flag-icon active">🇨🇿</div><span class="city-label">PRG</span></div>
+      </div>
+
+      <div class="section-divider"><span>Timeline</span></div>
+
+      <div class="timeline-container">
+        <div class="stop-node clickable" onclick="showPage('vienna-page')">
+          <div class="date-col"></div>
+          <div class="visual-col"><div class="dot active"></div><div class="line"></div></div>
+          <div class="info-col">
+            <h2 class="city-name">Vienna <span class="fi fi-at"></span></h2>
+            <p class="city-theme">Art & Imperial Legacy</p>
+            <p class="hotel-name">
+              <a href="https://www.google.com/maps/search/?api=1&query=K+T+Boardinghouse+Vienna" target="_blank">
+                <i class="fa-solid fa-bed"></i> K+T Boardinghouse
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div class="stop-node clickable" onclick="showPage('barcelona-page')">
+          <div class="date-col"></div>
+          <div class="visual-col"><div class="dot active"></div><div class="line"></div></div>
+          <div class="info-col">
+            <h2 class="city-name">Barcelona <span class="fi fi-es"></span></h2>
+            <p class="city-theme">Gaudí & Architecture</p>
+            <p class="hotel-name">
+              <a href="https://www.google.com/maps/search/?api=1&query=Petit+Palace+Trencadis+Barcelona" target="_blank">
+                <i class="fa-solid fa-bed"></i> Petit Palace Trencadis
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div class="stop-node clickable" onclick="showPage('budapest-page')">
+          <div class="date-col"></div>
+          <div class="visual-col"><div class="dot active"></div><div class="line"></div></div>
+          <div class="info-col">
+            <h2 class="city-name">Budapest <span class="fi fi-hu"></span></h2>
+            <p class="city-theme">Pearl of the Danube</p>
+            <p class="hotel-name"><i class="fa-solid fa-bed"></i> City Corso Hotel</p>
+          </div>
+        </div>
+
+        <div class="stop-node clickable" onclick="showPage('prague-page')">
+          <div class="date-col"></div>
+          <div class="visual-col"><div class="dot active"></div><div class="line"></div></div>
+          <div class="info-col">
+            <h2 class="city-name">Prague <span class="fi fi-cz"></span></h2>
+            <p class="city-theme">City of a Hundred Spires</p>
+            <p class="hotel-name"><i class="fa-solid fa-bed"></i> Old Town Hotel</p>
+          </div>
+        </div>
+    </div>
+  </section>
+
+  <section id="vienna-page" class="app-screen next-screen">
+    <nav class="sticky-nav">
+      <button class="back-btn" onclick="showPage('master-page')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="nav-links"><a href="#vie-day1" class="nav-item">Day 1</a><a href="#vie-day2" class="nav-item">Day 2</a><a href="#vie-day3" class="nav-item">Day 3</a><a href="#vie-day4" class="nav-item">Day 4</a></div>
+      <button class="home-btn" onclick="showPage('master-page')"><i class="fa-solid fa-house"></i></button>
+    </nav>
+    <main class="travel-journal">
+      <header class="journal-header">
+        <p class="trip-date">Feb. 2026</p>
+        <h1>Vienna</h1>
+        <p class="sub-title">Art & Imperial Legacy</p>
+        <div class="divider-line"></div>
+      </header>
+
+      <div id="vie-day1" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 1</span><h3>Feb</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">11:00</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=K+T+Boardinghouse+Vienna" target="_blank">K+T Boardinghouse <i class="fa-solid fa-bed"></i></a></h4><p class="notes handwritten">Check-in</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">12:00</span><span class="duration">20m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Ankeruhr+Vienna" target="_blank">Ankeruhr</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">12:30</span><span class="duration">20m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Austrian+Academy+of+Sciences" target="_blank">Austrian Academy of Sciences</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:00</span><span class="duration">2.5h</span></div><div class="content-col"><div class="card highlight"><div class="tag">Must See</div><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=St.+Stephen's+Cathedral+Vienna" target="_blank">St. Stephen's Cathedral</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:00</span><span class="duration">1h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 16:00</div><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Figlmüller+Bäckerstraße" target="_blank">Figlmüller (Bäckerstraße) <i class="fa-solid fa-utensils"></i></a></h4><div class="details">Schnitzel</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">17:05</span><span class="duration">20m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Jesuit+Church+Vienna" target="_blank">Jesuit Church</a></h4><div class="details">Trompe-l'œil</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">17:30</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Öfferl+Wollzeile+31" target="_blank">Öfferl Bakery</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">18:30</span><span class="duration">20m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Votive+Church+Vienna" target="_blank">Votive Church</a></h4><p class="notes handwritten">Pic outside, Infinity of Light</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">19:00</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Vienna+City+Hall" target="_blank">Vienna City Hall</a></h4><div class="details">Night view</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">20:15</span><span class="duration">1h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 20:30</div><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Café+Central+Vienna" target="_blank">Café Central <i class="fa-solid fa-mug-hot"></i></a></h4><p class="notes handwritten">Kaiserschmarrn & Strudel. Just for vibe and pic.</p></div></div></div></div>
+      </section>
+
+      <div id="vie-day2" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 2</span><h3>Feb</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">10:00</span><span class="duration">3h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 10:00</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Belvedere+Palace" target="_blank">Belvedere Palace</a></h4>
+          <div class="details">Upper Belvedere</div>
+          <ul class="artwork-list">
+            <li>The Kiss (Klimt)</li>
+            <li>Death and Girl (Schiele)</li>
+            <li>Napoleon at the Great St Bernard (David)</li>
+            <li>Rocky Landscape in the Elbe Sandstone Mountains (Friedrich)</li>
+            <li>The Plain at Auvers (Van Gogh)</li>
+          </ul>
+          <p class="notes handwritten">Take pic at the main entrance pool.</p>
+        </div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:15</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=St.+Charles's+Church+Vienna" target="_blank">St. Charles's Church</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:40</span><span class="duration">4h</span></div><div class="content-col"><div class="card highlight"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Kunsthistorisches+Museum+Vienna" target="_blank">Kunsthistorisches Museum</a></h4>
+          <div class="details">Café & Art</div>
+          <ul class="artwork-list">
+            <li>Madonna del Prato (Raphael)</li>
+            <li>The Tower of Babel (Bruegel)</li>
+          </ul>
+        </div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">19:00</span></div><div class="content-col"><div class="card simple-list"><h4>Night Pics</h4><ul><li><a href="https://www.google.com/maps/search/?api=1&query=Albertina+Vienna" target="_blank">Albertina (Terrace View) <i class="fa-solid fa-location-arrow"></i></a></li><li><a href="https://www.google.com/maps/search/?api=1&query=Musikverein+Vienna" target="_blank">Musikverein <i class="fa-solid fa-location-arrow"></i></a></li></ul></div></div></div>
+      </section>
+
+      <div id="vie-day3" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 3</span><h3>Feb</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">09:10</span><span class="duration">4h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 9:15</div><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Hofburg+Vienna" target="_blank">Hofburg (Sisi Museum)</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:00</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Austrian+National+Library" target="_blank">Austrian National Library</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:20</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Justizpalast+Vienna" target="_blank">Justizpalast</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:00</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Austrian+Parliament+Building" target="_blank">Austrian Parliament</a></h4><p class="notes handwritten">Pic outside</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:50</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Palais+Daun-Kinsky" target="_blank">Palais Daun-Kinsky</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:30</span><span class="duration">1h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Sunset Spot</div><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=St.+Peter's+Church+Vienna" target="_blank">St. Peter's Church</a></h4><p class="notes handwritten">Sunset 5:24 - 5:56PM</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">17:35</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Column+of+Pest+Vienna" target="_blank">Column of Pest</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">Dinner</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Schnitzel+Wirt+Vienna" target="_blank">Schnitzel Wirt <i class="fa-solid fa-utensils"></i></a></h4></div></div></div></div>
+      </section>
+
+      <div id="vie-day4" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 4</span><h3>Feb</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:15</span><span class="duration">1h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Tour: 14:30</div><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Vienna+State+Opera" target="_blank">Vienna State Opera</a></h4><div class="details">Guided Tour</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:45</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Plachuttas+Gasthaus+zur+Oper" target="_blank">Plachuttas Gasthaus zur Oper <i class="fa-solid fa-utensils"></i></a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">PM</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info"><h4><a href="https://www.google.com/maps/search/?api=1&query=Alt+%26+Neu+Records+Vienna" target="_blank">Alt & Neu Records</a></h4></div></div></div></div>
+      </section>
+
+      <div class="next-stop-container" onclick="showPage('barcelona-page')"><div class="next-label">Next Stop</div><div class="next-city">Barcelona 🇪🇸 <i class="fa-solid fa-arrow-right-long"></i></div></div>
+      <footer class="journal-footer"><p>Vienna 2026 • Chris</p></footer>
+    </main>
+  </section>
+
+  <section id="barcelona-page" class="app-screen next-screen">
+    <nav class="sticky-nav">
+      <button class="back-btn" onclick="showPage('vienna-page')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="nav-links"><a href="#day1" class="nav-item">Day 1</a><a href="#day2" class="nav-item">Day 2</a><a href="#day3" class="nav-item">Day 3</a><a href="#day4" class="nav-item">Day 4</a></div>
+      <button class="home-btn" onclick="showPage('master-page')"><i class="fa-solid fa-house"></i></button>
+    </nav>
+    <main class="travel-journal">
+      <header class="journal-header">
+        <p class="trip-date">Feb. 2026</p>
+        <h1>Barcelona</h1>
+        <p class="sub-title">Gaudí & Architecture</p>
+        <div class="divider-line"></div>
+      </header>
+      <div id="day1" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 1</span><h3>Feb. 23 Mon</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">ARR</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Petit+Palace+Trencadis+Barcelona" target="_blank">Petit Palace Trencadis <i class="fa-solid fa-bed"></i></a></h4><p class="notes handwritten">Check-in</p></div></div></div></div>
+      </section>
+      <div id="day2" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 2</span><h3>Feb. 24 Tue</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">08:30</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4>Plaça de Gaudí</h4><p class="notes handwritten">For pic</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">09:00</span><span class="duration">2h</span></div><div class="content-col"><div class="card highlight"><div class="tag">Booked: 09:00</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Casa+Mil%C3%A0" target="_blank">La Pedrera - Casa Milà</a></h4><div class="details">Lobby then rooftop first for pic</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">11:15</span><span class="duration">2h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Gold Ticket</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Casa+Batll%C3%B3" target="_blank">Casa Batlló</a></h4><div class="details">Augmented Reality Tablet</div><p class="notes handwritten">Don't miss the AR experience</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:30</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="tag">Booked: 13:30</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Casa+Vicens+Gaud%C3%AD" target="_blank">Casa Vicens Gaudí</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:00</span><span class="duration">2h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Park+G%C3%BCell" target="_blank">Park Güell</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">18:00</span></div><div class="content-col"><div class="card simple-list"><h4>Evening Walk</h4><ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Ciutadella+Park" target="_blank">Ciutadella Park (Fountain) <i class="fa-solid fa-location-arrow"></i></a><span class="sub-note">For pic, Sunset 6:35 - 7:03PM</span></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Arc+de+Triomf+Barcelona" target="_blank">Arc de Triomf <i class="fa-solid fa-location-arrow"></i></a></li></ul></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">19:30</span></div><div class="content-col"><div class="card simple-list"><h4>Night Pics (Outside)</h4><ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Palau+de+la+M%C3%BAsica+Catalana" target="_blank">Palau de la Música Catalana <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Pont+del+Bisbe" target="_blank">Pont del Bisbe <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Cathedral+of+Barcelona" target="_blank">Cathedral of Barcelona <i class="fa-solid fa-location-arrow"></i></a></li></ul></div></div></div>
+      </section>
+      <div id="day3" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 3</span><h3>Feb. 25 Wed</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">09:00</span><span class="duration">4.5h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 9:00 + 9:45 Tower</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=La+Sagrada+Familia" target="_blank">Sagrada Família</a></h4><div class="details">Tower on the Nativity façade</div><p class="notes handwritten">Highlight of the trip!</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:30</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Pla%C3%A7a+de+la+Sagrada+Fam%C3%ADlia" target="_blank">Plaça de la Sagrada Familia</a></h4><p class="notes handwritten">For pic</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:30</span><span class="duration">1.5h</span></div><div class="content-col"><div class="card"><div class="tag">Booked: 14:30</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Recinte+Modernista+de+Sant+Pau" target="_blank">Recinte Modernista de Sant Pau</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:30</span><span class="duration">1h</span></div><div class="content-col"><div class="card highlight"><div class="tag">Booked: 16:30</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Palau+G%C3%BCell" target="_blank">Palau Güell</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">Eve</span></div><div class="content-col"><div class="card simple-list"><h4>Dinner & Shopping</h4><ul>
+          <li><a href="https://maps.app.goo.gl/PUwWjCRc1qtaNSAe7" target="_blank">Da Nanni Pizzeria (Dinner) <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Pla%C3%A7a+de+Catalunya" target="_blank">Plaça de Catalunya (Shopping) <i class="fa-solid fa-location-arrow"></i></a></li><li><span class="sub-note">Night pics: Casa Batlló & Casa Milà</span></li></ul></div></div></div>
+      </section>
+      <div id="day4" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 4</span><h3>Feb. 26 Thu</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">07:00</span><span class="duration">30m</span></div><div class="content-col"><div class="card highlight"><div class="tag">Sunrise Spot</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=L'Estel+ferit" target="_blank">L'Estel ferit</a></h4><p class="notes handwritten">Sunrise 7:02 - 7:30AM</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">10:00</span><span class="duration">1h</span></div><div class="content-col"><div class="card simple-list"><h4>Day Pics & Final Walk</h4><ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Palau+de+la+M%C3%BAsica+Catalana" target="_blank">Palau de la Música <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Pont+del+Bisbe" target="_blank">Pont del Bisbe <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Cathedral+of+Barcelona" target="_blank">Cathedral <i class="fa-solid fa-location-arrow"></i></a></li></ul></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:20</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Petit+Palace+Trencadis+Barcelona" target="_blank">Petit Palace Trencadis <i class="fa-solid fa-bed"></i></a></h4><p class="notes handwritten">Luggage Pick-up / Depart</p></div></div></div></div>
+      </section>
+      <div class="next-stop-container" onclick="showPage('budapest-page')"><div class="next-label">Next Stop</div><div class="next-city">Budapest 🇭🇺 <i class="fa-solid fa-arrow-right-long"></i></div></div>
+      <footer class="journal-footer"><p>Barcelona 2026 • Chris</p></footer>
+    </main>
+  </section>
+
+  <section id="budapest-page" class="app-screen next-screen">
+    <nav class="sticky-nav">
+      <button class="back-btn" onclick="showPage('barcelona-page')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="nav-links"><a href="#bud-day1" class="nav-item">Day 1</a><a href="#bud-day2" class="nav-item">Day 2</a><a href="#bud-day3" class="nav-item">Day 3</a><a href="#bud-day4" class="nav-item">Day 4</a></div>
+      <button class="home-btn" onclick="showPage('master-page')"><i class="fa-solid fa-house"></i></button>
+    </nav>
+    <main class="travel-journal">
+      <header class="journal-header">
+        <p class="trip-date">Feb-Mar. 2026</p>
+        <h1>Budapest</h1>
+        <p class="sub-title">Pearl of the Danube</p>
+        <div class="divider-line"></div>
+      </header>
+
+      <div id="bud-day1" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 1</span><h3>Feb</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:30</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4>City Corso Hotel <i class="fa-solid fa-bed"></i></h4><p class="notes handwritten">Arrival & Check-in</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:00</span><span class="duration">1.5h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 15:00</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=New+York+Café+Budapest" target="_blank">New York Café</a></h4><p class="notes handwritten">2F for the best views</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:50</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Central+Market+Hall+Budapest" target="_blank">Central Market Hall</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">18:00</span><span class="duration">50m</span></div><div class="content-col"><div class="card highlight"><div class="tag">Sunset Spot</div><div class="info">
+          <h4><a href="https://maps.app.goo.gl/TtKWSvaywReHvBhr6" target="_blank">Liberty Bridge</a></h4><p class="notes handwritten">Sunset 5:25 - 5:56PM</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">19:30</span><span class="duration">1h</span></div><div class="content-col"><div class="card simple-list"><h4>Night Pics</h4><ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=S.+Maria+Mater+Dei+Budapest" target="_blank">S. MARIA MATER DEI <i class="fa-solid fa-location-arrow"></i></a><span class="sub-note">Spot for night views</span></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=V%C3%A1rkert+Baz%C3%A1r" target="_blank">Castle Garden Bazaar <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Sz%C3%A9chenyi+Chain+Bridge" target="_blank">Széchenyi Chain Bridge <i class="fa-solid fa-location-arrow"></i></a></li></ul></div></div></div>
+      </section>
+
+      <div id="bud-day2" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 2</span><h3>Feb. 28 Sat</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">08:30</span><span class="duration">4h</span></div><div class="content-col"><div class="card highlight"><div class="tag">Must See</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Fisherman's+Bastion" target="_blank">Fisherman's Bastion</a></h4><div class="details">The Church of Our Lady of Buda Castle</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">12:00</span><span class="duration">1.5h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=P%C3%A1risi+Udvar+Hotel+Budapest" target="_blank">Párisi Udvar Hotel</a></h4><div class="details">Párisi Passage Café</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:45</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Metropolitan+Ervin+Szab%C3%B3+Library" target="_blank">Ervin Szabó Library</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:50</span><span class="duration">2h</span></div><div class="content-col"><div class="card simple-list"><h4>Museum District</h4><ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Hungarian+National+Museum" target="_blank">Hungarian National Museum <i class="fa-solid fa-location-arrow"></i></a></li><li>Museum Garden & Károlyi Garden</li></ul></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">17:20</span><span class="duration">1h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 18:20</div><div class="info">
+          <h4><a href="https://maps.app.goo.gl/YV8ksiwLCQpzwfbU8" target="_blank">Evening Cruise</a></h4><div class="details">Welcome Drink</div><p class="notes handwritten">Sit on the right side of the boat</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">20:00</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Szimpla+Kert" target="_blank">Szimpla Kert</a></h4><p class="notes handwritten">Ruin Bar experience</p></div></div></div></div>
+      </section>
+
+      <div id="bud-day3" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 3</span><h3>Mar. 01 Sun</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">09:00</span><span class="duration">2h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Buda+Castle" target="_blank">Buda Castle</a></h4><div class="details">Castle Garden Bazaar (En route)</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">11:15</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Sz%C3%A9chenyi+Chain+Bridge" target="_blank">Széchenyi Chain Bridge</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:00</span><span class="duration">2h</span></div><div class="content-col"><div class="card simple-list"><h4>City Park Area</h4><ul>
+          <li><a href="https://maps.app.goo.gl/XWxYFFuijy9jU4HL8" target="_blank">Heroes' Square <i class="fa-solid fa-location-arrow"></i></a></li><li><a href="https://maps.app.goo.gl/vzhhyfmJDRtXPkeF6" target="_blank">Vajdahunyad Castle <i class="fa-solid fa-location-arrow"></i></a></li><li>City Park</li></ul></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:20</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Hungarian+State+Opera" target="_blank">State Opera</a></h4><p class="notes handwritten">Outside pic & Andrássy Avenue</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:30</span><span class="duration">1.5h</span></div><div class="content-col"><div class="card highlight"><div class="tag">Sunset Spot</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=St.+Stephen's+Basilica" target="_blank">St. Stephen's Basilica</a></h4><p class="notes handwritten">Sunset 5:28 - 5:59PM</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">18:30</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Parliament+Viewpoint+Budapest" target="_blank">Parliament Viewpoint</a></h4></div></div></div></div>
+      </section>
+
+      <div id="bud-day4" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 4</span><h3>Mar. 02 Mon</h3></div>
+        
+        <div class="timeline-item"><div class="time-col"><span class="time">Day</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Erzs%C3%A9bet+Square+Budapest" target="_blank">Elizabeth Square</a></h4><div class="details">Final Walk</div></div></div></div></div>
+        
+        <div class="timeline-item"><div class="time-col"></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=V%C3%B6r%C3%B6smarty+Square" target="_blank">Vörösmarty Square</a></h4></div></div></div></div>
+        
+        <div class="timeline-item"><div class="time-col"></div><div class="content-col"><div class="card highlight"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Hungarian+Parliament+Building" target="_blank">Parliament Building</a></h4>
+          <div class="details">Shoes on the Danube Bank (En route)</div></div></div></div></div>
+      </section>
+
+      <div class="next-stop-container" onclick="showPage('prague-page')"><div class="next-label">Next Stop</div><div class="next-city">Prague 🇨🇿 <i class="fa-solid fa-arrow-right-long"></i></div></div>
+      <footer class="journal-footer"><p>Budapest 2026 • Chris</p></footer>
+    </main>
+  </section>
+
+  <section id="prague-page" class="app-screen next-screen">
+    <nav class="sticky-nav">
+      <button class="back-btn" onclick="showPage('budapest-page')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="nav-links"><a href="#prg-day1" class="nav-item">Day 1</a><a href="#prg-day2" class="nav-item">Day 2</a><a href="#prg-day3" class="nav-item">Day 3</a><a href="#prg-day4" class="nav-item">Day 4</a></div>
+      <button class="home-btn" onclick="showPage('master-page')"><i class="fa-solid fa-house"></i></button>
+    </nav>
+    <main class="travel-journal">
+      <header class="journal-header">
+        <p class="trip-date">Mar. 2026</p>
+        <h1>Prague</h1>
+        <p class="sub-title">City of a Hundred Spires</p>
+        <div class="divider-line"></div>
+      </header>
+
+      <div id="prg-day1" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 1</span><h3>Mar</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:30</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4>Old Town Hotel <i class="fa-solid fa-bed"></i></h4><p class="notes handwritten">Check-in</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:40</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Klementinum" target="_blank">Klementinum</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:40</span><span class="duration">20m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Idiom+Installation+Prague" target="_blank">Idiom Installation</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:15</span><span class="duration">1.5h</span></div><div class="content-col"><div class="card simple-list"><h4>Old Town Area</h4><ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=The+Powder+Tower+Prague" target="_blank">The Powder Tower <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://maps.app.goo.gl/hZDmJwfEy23SraLd7" target="_blank">Old Town Square <i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&query=Prague+Astronomical+Clock" target="_blank">Astronomical Clock <i class="fa-solid fa-location-arrow"></i></a></li></ul></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">17:45</span><span class="duration">1h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 17:45</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Terasa+U+Prince" target="_blank">Terasa U Prince</a></h4><p class="notes handwritten">Sunset 5:47 - 6:19PM</p></div></div></div></div>
+      </section>
+
+      <div id="prg-day2" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 2</span><h3>Mar</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">06:07</span><span class="duration">30m</span></div><div class="content-col"><div class="card highlight"><div class="tag">Sunrise Spot</div><div class="info">
+          <h4>Charles Bridge</h4><p class="notes handwritten">Sunrise 6:07 - 6:39AM</p></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">09:30</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Old+Town+Bridge+Tower" target="_blank">Old Town Bridge Tower</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">10:10</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=St.+Nicholas+Church+Malá+Strana" target="_blank">St. Nicholas Church</a></h4><div class="details">Malá Strana</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">11:00</span><span class="duration">3h</span></div><div class="content-col"><div class="card highlight"><div class="tag">Must See</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Prague+Castle" target="_blank">Prague Castle</a></h4>
+          <ul class="artwork-list">
+            <li>Vyhlídka Na Opyši (Pic)</li>
+            <li>St. George's Basilica</li>
+            <li>Old Royal Palace</li>
+            <li>Golden Lane</li>
+          </ul>
+        </div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">14:00</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=St.+Vitus+Cathedral" target="_blank">St. Vitus Cathedral</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:20</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Loreto+Prague" target="_blank">Loreto</a></h4><div class="details">The Prague Sun</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:00</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Strahov+Monastery" target="_blank">Strahov Monastery</a></h4>
+          <ul class="artwork-list">
+            <li>Theological Hall</li>
+            <li>Philosophical Hall</li>
+          </ul>
+        </div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">17:20</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Sunset Spot</div><div class="info">
+          <h4><a href="https://maps.app.goo.gl/3Exjboh6Pp4xGtW29" target="_blank">Petrin Tower</a></h4><p class="notes handwritten">Sunset 5:49 - 6:21PM</p></div></div></div></div>
+      </section>
+
+      <div id="prg-day3" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 3</span><h3>Mar</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">09:50</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Park+Cihelná" target="_blank">Park Cihelná</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">10:00</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4>Charles Bridge</h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">10:40</span><span class="duration">20m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Dancing+House" target="_blank">Dancing House</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">11:10</span><span class="duration">1.5h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Legion+Bridge" target="_blank">Legion Bridge</a></h4><div class="details">Visit the islands under</div></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:00</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=The+Powder+Tower" target="_blank">The Powder Tower</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">13:30</span><span class="duration">1.5h</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Booked: 13:30</div><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Brasileiro+Restaurant+Prague" target="_blank">Brasileiro Restaurant <i class="fa-solid fa-utensils"></i></a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:25</span><span class="duration">30m</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Žižkov+Television+Tower" target="_blank">Žižkov Television Tower</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">16:25</span><span class="duration">1h</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4><a href="https://www.google.com/maps/search/?api=1&query=Grébovka" target="_blank">Grébovka (Havlíčkovy sady)</a></h4></div></div></div></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">17:55</span></div><div class="content-col"><div class="card highlight gold-theme"><div class="tag">Sunset Spot</div><div class="info">
+          <h4><a href="https://maps.app.goo.gl/cU8Fv1ecg5BBBAX39`。" target="_blank">Vyšehrad</a></h4><p class="notes handwritten">Sunset 5:50 - 6:23PM</p></div></div></div></div>
+      </section>
+
+      <div id="prg-day4" class="anchor-offset"></div>
+      <section class="day-section">
+        <div class="day-header"><span class="day-tag">Day 4</span><h3>Mar</h3></div>
+        <div class="timeline-item"><div class="time-col"><span class="time">15:00</span></div><div class="content-col"><div class="card"><div class="info">
+          <h4>Old Town Hotel <i class="fa-solid fa-bed"></i></h4><p class="notes handwritten">Luggage Pick-up</p></div></div></div></div>
+      </section>
+      
+      <div class="next-stop-container" onclick="showPage('master-page')">
+        <div class="next-label">Photos Loading...</div>
+        <div class="next-city">End of Trip <i class="fa-solid fa-check"></i></div>
+      </div>
+      <footer class="journal-footer"><p>Prague 2026 • Chris</p></footer>
+    </main>
+  </section>
+
+  <section id="transport-page" class="app-screen next-screen">
+    <nav class="sticky-nav">
+      <button class="back-btn" onclick="showPage('master-page')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="nav-links"><a href="#transport-top" class="nav-item">Transport</a></div>
+      <button class="home-btn" onclick="showPage('master-page')"><i class="fa-solid fa-house"></i></button>
+    </nav>
+    <main class="travel-journal">
+      <header class="journal-header" id="transport-top">
+        <h1>Transport</h1>
+        <div class="divider-line"></div>
+      </header>
+
+      <div class="day-section">
+        <div class="card transport-card">
+          <div class="t-header">
+            <span class="t-type"><i class="fa-solid fa-plane"></i> Flight</span>
+            <span class="t-date">Feb 17 • 22:10 - 05:50</span>
+          </div>
+          <div class="t-route">
+            <span class="origin">TPE</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span class="dest">IST</span>
+          </div>
+          <div class="t-details">
+            <span><i class="fa-solid fa-ticket"></i> TK25</span> • 
+            <span class="t-company">Turkish Airlines</span>
+          </div>
+        </div>
+
+        <div class="card transport-card">
+          <div class="t-header">
+            <span class="t-type"><i class="fa-solid fa-plane"></i> Flight</span>
+            <span class="t-date">Feb 18 • 08:10 - 08:25</span>
+          </div>
+          <div class="t-route">
+            <span class="origin">IST</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span class="dest">VIE</span>
+          </div>
+          <div class="t-details">
+            <span><i class="fa-solid fa-ticket"></i> TK1883</span> • 
+            <span class="t-company">Turkish Airlines</span>
+          </div>
+        </div>
+
+        <div class="card transport-card">
+          <div class="t-header">
+            <span class="t-type"><i class="fa-solid fa-plane"></i> Flight</span>
+            <span class="t-date">Feb 23 • 20:20 - 22:45</span>
+          </div>
+          <div class="t-route">
+            <span class="origin">BTS</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span class="dest">BCN</span>
+          </div>
+          <div class="t-details">
+            <span><i class="fa-solid fa-ticket"></i> FR5719</span> • 
+            <span class="t-company">Ryanair Airlines</span>
+          </div>
+        </div>
+
+        <div class="card transport-card">
+          <div class="t-header">
+            <span class="t-type"><i class="fa-solid fa-plane"></i> Flight</span>
+            <span class="t-date">Feb 26 • 17:40 - 20:05</span>
+          </div>
+          <div class="t-route">
+            <span class="origin">BCN</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span class="dest">BTS</span>
+          </div>
+          <div class="t-details">
+            <span><i class="fa-solid fa-ticket"></i> FR5718</span> • 
+            <span class="t-company">Ryanair Airlines</span>
+          </div>
+        </div>
+
+        <div class="card transport-card">
+          <div class="t-header">
+            <span class="t-type"><i class="fa-solid fa-plane"></i> Flight</span>
+            <span class="t-date">Mar 07 • 14:05 - 18:30</span>
+          </div>
+          <div class="t-route">
+            <span class="origin">VIE</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span class="dest">IST</span>
+          </div>
+          <div class="t-details">
+            <span><i class="fa-solid fa-ticket"></i> TK1886</span> • 
+            <span class="t-company">Turkish Airlines</span>
+          </div>
+        </div>
+
+        <div class="card transport-card">
+          <div class="t-header">
+            <span class="t-type"><i class="fa-solid fa-plane"></i> Flight</span>
+            <span class="t-date">Mar 08 • 17:10 - 08:45</span>
+          </div>
+          <div class="t-route">
+            <span class="origin">IST</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span class="dest">TPE</span>
+          </div>
+          <div class="t-details">
+            <span><i class="fa-solid fa-ticket"></i> TK124</span> • 
+            <span class="t-company">Turkish Airlines</span>
+          </div>
+        </div>
+
+      </div>
+      <footer class="journal-footer"><p>Europe 2026 • Chris</p></footer>
+    </main>
+  </section>
+
+  <section id="photo-page" class="app-screen next-screen">
+    <nav class="sticky-nav">
+      <button class="back-btn" onclick="showPage('master-page')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="nav-links"><a href="#photo-top" class="nav-item">Photography Info</a></div>
+      <button class="home-btn" onclick="showPage('master-page')"><i class="fa-solid fa-house"></i></button>
+    </nav>
+    <main class="travel-journal">
+      <header class="journal-header" id="photo-top">
+        <h1>Photography</h1>
+        <p class="sub-title">Light & Location</p>
+        <div class="divider-line"></div>
+      </header>
+
+      <div class="day-section">
+        <div class="card simple-list">
+          <h4><i class="fa-solid fa-sun" style="margin-right: 5px;"></i> Lighting Phases</h4>
+          <ul>
+            <li><strong>Golden Hour:</strong> Sunrise → +1</li>
+            <li><strong>Prime Time:</strong> Sunset − 1 → Sunset</li>
+            <li><strong>Blue Hour:</strong> Sunset → Civil Twilight end</li>
+          </ul>
+        </div>
+        <div class="card simple-list" style="margin-top: 20px;">
+          <h4><i class="fa-solid fa-camera" style="margin-right: 5px;"></i> Shooting Guide</h4>
+          <ul>
+            <li><strong>Portraits / Instagram:</strong> <br>1 hour after sunrise + 1 hour before sunset</li>
+            <li><strong>City vibes / Architecture:</strong> <br>Early morning Civil Twilight + Blue Hour</li>
+            <li><strong>Empty streets / Minimal shots:</strong> <br>Early morning Civil Twilight</li>
+            <li><strong>Romantic mood:</strong> <br>Sunset + Blue Hour</li>
+          </ul>
+        </div>
+        
+      </div>
+      <footer class="journal-footer"><p>Europe 2026 • Chris</p></footer>
+    </main>
+  </section>
+
+  <script>
+    function showPage(pageId) {
+      const pages = document.querySelectorAll('.app-screen');
+      pages.forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    document.addEventListener('DOMContentLoaded', () => showPage('master-page'));
+  </script>
+</body>
+</html>
